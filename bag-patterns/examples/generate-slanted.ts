@@ -4,14 +4,13 @@ import type { SlantedBagParams } from "../src/patterns/slanted-bag";
 import * as fs from "fs";
 
 const params: SlantedBagParams = {
-  width: 350, // 55cm in mm
-  internalHeight: 410, // 41cm in mm (between notches)
-  slantAngle: 15, // 15 degrees
-  slantWidth: 50, // 10cm in mm
-  zipperLength: 25.4, // 25.4cm length zipper
-  slotHeight: 30, // 3cm in mm
-  cornerRadius: 15, // 1.5cm radius in mm
-  notchSize: 30, // 2cm notch size
+  width: 300,
+  internalHeight: 250,
+  slantWidth: 50,
+  zipperLength: 25.4,
+  slotHeight: 30,
+  cornerRadius: 15,
+  notchSize: 30,
 };
 
 const pattern = new SlantedBagPattern(params);
