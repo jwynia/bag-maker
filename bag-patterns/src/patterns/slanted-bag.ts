@@ -3,12 +3,13 @@ import { BagPattern, Path, Panel, Point } from "../core";
 
 export interface SlantedBagParams extends Record<string, number> {
   width: number; // Overall width
-  height: number; // Overall height
+  internalHeight: number; // Height between notches
   slantAngle: number; // Angle of side sections
   slantWidth: number; // Width of angled portion
   zipperLength: number; // Length of zipper in cm
   slotHeight: number; // Height of slot opening
   cornerRadius: number; // Radius for slot corners
+  notchSize: number; // Size of corner notches
 }
 
 export class SlantedBagPattern extends BagPattern {
@@ -16,16 +17,32 @@ export class SlantedBagPattern extends BagPattern {
   private readonly ZIPPER_REDUCTION = 25; // 2.5cm reduction in mm
 
   constructor(params: SlantedBagParams) {
-    super({ width: params.width, height: params.height }, params);
+    // If notchSize isn't provided, set it in the params
+    if (!params.notchSize) {
+      params.notchSize = params.slantWidth * 0.2;
+    }
+    const totalHeight = params.internalHeight + 2 * params.notchSize;
+    super({ width: params.width, height: totalHeight }, params);
+  }
+  private calculateNotchSize(): number {
+    return this.params.notchSize ?? this.params.slantWidth * 0.2;
   }
 
-  private generateOutlinePath(): Path {
-    const { width, height, slantAngle, slantWidth } = this
-      .params as SlantedBagParams;
+  private calculateSlantOffset(): number {
+    const { slantAngle, slantWidth } = this.params;
+    return Math.tan((slantAngle * Math.PI) / 180) * slantWidth;
+  }
 
-    // Calculate slant offset based on angle
-    const slantOffset = Math.tan((slantAngle * Math.PI) / 180) * slantWidth;
-    const notchSize = slantWidth * 0.2; // Make notch size proportional to slant width
+  private calculateTotalHeight(): number {
+    const { internalHeight } = this.params;
+    const notchSize = this.calculateNotchSize();
+    return internalHeight + 2 * notchSize;
+  }
+  private generateOutlinePath(): Path {
+    const { width } = this.params;
+    const notchSize = this.calculateNotchSize();
+    const slantOffset = this.calculateSlantOffset();
+    const totalHeight = this.calculateTotalHeight();
 
     return (
       new Path()
@@ -33,27 +50,21 @@ export class SlantedBagPattern extends BagPattern {
         .moveTo({ x: notchSize, y: 0 })
         // Top edge
         .lineTo({ x: width - notchSize, y: 0 })
-        // Top-right notch
+        // Top-right notch and slant
         .lineTo({ x: width - notchSize, y: notchSize })
         .lineTo({ x: width, y: notchSize })
-        // Right side to slant
-        .lineTo({ x: width, y: slantWidth })
-        .lineTo({ x: width - slantOffset, y: height / 2 })
-        .lineTo({ x: width, y: height - slantWidth })
-        // Bottom-right notch
-        .lineTo({ x: width, y: height - notchSize })
-        .lineTo({ x: width - notchSize, y: height - notchSize })
-        .lineTo({ x: width - notchSize, y: height })
+        .lineTo({ x: width - slantOffset, y: totalHeight / 2 })
+        // Bottom-right slant and notch
+        .lineTo({ x: width, y: totalHeight - notchSize })
+        .lineTo({ x: width - notchSize, y: totalHeight - notchSize })
+        .lineTo({ x: width - notchSize, y: totalHeight })
         // Bottom edge
-        .lineTo({ x: notchSize, y: height })
-        // Bottom-left notch
-        .lineTo({ x: notchSize, y: height - notchSize })
-        .lineTo({ x: 0, y: height - notchSize })
-        // Left side to slant
-        .lineTo({ x: 0, y: height - slantWidth })
-        .lineTo({ x: slantOffset, y: height / 2 })
-        .lineTo({ x: 0, y: slantWidth })
-        // Top-left notch completion
+        .lineTo({ x: notchSize, y: totalHeight })
+        // Bottom-left notch and slant
+        .lineTo({ x: notchSize, y: totalHeight - notchSize })
+        .lineTo({ x: 0, y: totalHeight - notchSize })
+        .lineTo({ x: slantOffset, y: totalHeight / 2 })
+        // Top-left slant and notch completion
         .lineTo({ x: 0, y: notchSize })
         .lineTo({ x: notchSize, y: notchSize })
         .closePath()
@@ -61,38 +72,60 @@ export class SlantedBagPattern extends BagPattern {
   }
 
   private generateCenterSlot(): Path {
-    const { width, height, zipperLength, slotHeight, cornerRadius } = this
-      .params as SlantedBagParams;
+    const { width, zipperLength, slotHeight, cornerRadius } = this.params;
 
     // Convert zipper length to slot width (converting cm to mm and applying reduction)
     const slotWidth = zipperLength * 10 - this.ZIPPER_REDUCTION;
 
-    // Center the slot
+    // Center the slot horizontally
     const slotPadding = (width - slotWidth) / 2;
-    const slotY = (height - slotHeight) / 2;
 
-    return new Path()
-      .moveTo({ x: slotPadding + cornerRadius, y: slotY })
-      .lineTo({ x: slotPadding + slotWidth - cornerRadius, y: slotY })
-      .arcTo(
-        { x: slotPadding + slotWidth, y: slotY + cornerRadius },
-        cornerRadius
-      )
-      .lineTo({
-        x: slotPadding + slotWidth,
-        y: slotY + slotHeight - cornerRadius,
-      })
-      .arcTo(
-        { x: slotPadding + slotWidth - cornerRadius, y: slotY + slotHeight },
-        cornerRadius
-      )
-      .lineTo({ x: slotPadding + cornerRadius, y: slotY + slotHeight })
-      .arcTo(
-        { x: slotPadding, y: slotY + slotHeight - cornerRadius },
-        cornerRadius
-      )
-      .lineTo({ x: slotPadding, y: slotY + cornerRadius })
-      .arcTo({ x: slotPadding + cornerRadius, y: slotY }, cornerRadius);
+    // Center the slot vertically using the total calculated height
+    const totalHeight = this.calculateTotalHeight();
+    const slotY = (totalHeight - slotHeight) / 2;
+
+    // Debug logs
+    console.log("Slot calculations:", {
+      slotWidth,
+      slotPadding,
+      slotY,
+      totalHeight,
+      slotHeight,
+    });
+
+    return (
+      new Path()
+        // Start at left edge of slot
+        .moveTo({ x: slotPadding + cornerRadius, y: slotY })
+        // Top edge
+        .lineTo({ x: slotPadding + slotWidth - cornerRadius, y: slotY })
+        // Top right corner
+        .arcTo(
+          { x: slotPadding + slotWidth, y: slotY + cornerRadius },
+          cornerRadius
+        )
+        // Right edge
+        .lineTo({
+          x: slotPadding + slotWidth,
+          y: slotY + slotHeight - cornerRadius,
+        })
+        // Bottom right corner
+        .arcTo(
+          { x: slotPadding + slotWidth - cornerRadius, y: slotY + slotHeight },
+          cornerRadius
+        )
+        // Bottom edge
+        .lineTo({ x: slotPadding + cornerRadius, y: slotY + slotHeight })
+        // Bottom left corner
+        .arcTo(
+          { x: slotPadding, y: slotY + slotHeight - cornerRadius },
+          cornerRadius
+        )
+        // Left edge
+        .lineTo({ x: slotPadding, y: slotY + cornerRadius })
+        // Top left corner
+        .arcTo({ x: slotPadding + cornerRadius, y: slotY }, cornerRadius)
+    );
   }
 
   generatePanels(): Panel[] {
