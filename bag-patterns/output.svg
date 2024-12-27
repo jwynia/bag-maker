@@ -1,0 +1,7 @@
+
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           viewBox="0 0 300 250">
+        <path d="M 24 0 L 276 0 L 276 24 L 300 24 L 300 120 L 267.8460969082653 125 L 300 130 L 300 226 L 276 226 L 276 250 L 24 250 L 24 226 L 0 226 L 0 130 L 32.153903091734726 125 L 0 120 L 0 24 L 24 24 Z" fill="none" stroke="black" stroke-width="1"/>
+        <path d="M 50.5 110 L 249.5 110 A 15 15 0 0 1 264.5 125 L 264.5 125 A 15 15 0 0 1 249.5 140 L 50.5 140 A 15 15 0 0 1 35.5 125 L 35.5 125 A 15 15 0 0 1 50.5 110" fill="none" stroke="black" stroke-width="1"/>
+      </svg>
+    
