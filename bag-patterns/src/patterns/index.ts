@@ -1,1 +1,1 @@
-export * from "./slanted-bag";
+export * from "./wide-base-zippered-pouch";

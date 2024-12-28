@@ -5,7 +5,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "example": "ts-node examples/generate-slanted.ts"
+    "example": "ts-node examples/generate-zippered-pouch.ts"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

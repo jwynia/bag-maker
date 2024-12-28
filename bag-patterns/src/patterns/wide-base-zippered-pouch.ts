@@ -1,7 +1,7 @@
 import { PathStyle } from "src/core/types";
 import { BagPattern, Path, Panel, Point } from "../core";
 
-export interface SlantedBagParams extends Record<string, number> {
+export interface WideBaseZipperedPouchParams extends Record<string, number> {
   width: number; // Overall width in mm
   internalHeight: number; // Height between notches in mm
   slantWidth: number; // Width of angled portion in mm
@@ -11,11 +11,11 @@ export interface SlantedBagParams extends Record<string, number> {
   notchSize: number; // Size of corner notches in mm
 }
 
-export class SlantedBagPattern extends BagPattern {
-  protected declare params: SlantedBagParams;
+export class WideBaseZipperedPouchPattern extends BagPattern {
+  protected declare params: WideBaseZipperedPouchParams;
   private readonly ZIPPER_REDUCTION = 25; // 2.5cm reduction in mm
 
-  constructor(params: SlantedBagParams) {
+  constructor(params: WideBaseZipperedPouchParams) {
     const totalHeight = params.internalHeight + 2 * params.notchSize;
     super({ width: params.width, height: totalHeight }, params);
   }

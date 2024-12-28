@@ -1,9 +1,9 @@
 // In examples/generate-slanted.ts
-import { SlantedBagPattern } from "../src";
-import type { SlantedBagParams } from "../src/patterns/slanted-bag";
+import { WideBaseZipperedPouchPattern } from "../src";
+import type { WideBaseZipperedPouchParams } from "../src/patterns/wide-base-zippered-pouch";
 import * as fs from "fs";
 
-const params: SlantedBagParams = {
+const params: WideBaseZipperedPouchParams = {
   width: 300,
   internalHeight: 250,
   slantWidth: 50,
@@ -13,7 +13,7 @@ const params: SlantedBagParams = {
   notchSize: 30,
 };
 
-const pattern = new SlantedBagPattern(params);
+const pattern = new WideBaseZipperedPouchPattern(params);
 const svg = pattern.toSVG();
 
 // Write directly to file instead of using stdout
